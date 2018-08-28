@@ -151,8 +151,8 @@ bool ModuleGroundStation::StartTCPServer()
 
     // For some reason, listening on any other specific address (i.e. not Any) fails.
     //      - As a workaround, I check the incoming connection below for equality with the guiHostAddress before parsing
-//    m_TcpServer->listen(QHostAddress::Any, m_listenPort);
-    m_TcpServer->listen(m_guiHostAddress, m_listenPort);
+    m_TcpServer->listen(QHostAddress::Any, m_listenPort);
+//    m_TcpServer->listen(m_guiHostAddress, m_listenPort);
 
     m_TcpServer->moveToThread(m_ListenThread);
     m_ListenThread->start();
@@ -243,7 +243,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleGroundStation::ModuleC
     maceCommsParams->AddTerminalParameters("ListenPort", MaceCore::ModuleParameterTerminalTypes::INT, false);
     maceCommsParams->AddTerminalParameters("SendPort", MaceCore::ModuleParameterTerminalTypes::INT, false);
     structure.AddNonTerminal("MACEComms", maceCommsParams, false);
-    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
+    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, false);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -272,7 +272,10 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
         }
     }
 
-    this->SetID(params->GetTerminalValue<int>("ID"));
+    if(params->HasTerminal("ID"))
+    {
+        this->SetID(params->GetTerminalValue<int>("ID"));
+    }
 
     m_guiHostAddress = guiHostAddress;
     m_listenPort = listenPort;
@@ -342,11 +345,18 @@ void ModuleGroundStation::NewTopicData(const std::string &topicName, const MaceC
 //!
 void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
+    //if vehicle hasn't been added yet then return. This can happen if a topic is sent before heartbeat is seen
+    if(this->getDataObject()->HasModuleAsMavlinkID(sender) == false)
+    {
+        return;
+    }
+    uint8_t vehicleID = this->getDataObject()->getMavlinkIDFromModule(sender);
+
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
         //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender.ID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
@@ -355,49 +365,49 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write Attitude data to the GUI:
-                m_toGUIHandler->sendAttitudeData(sender.ID, component);
+                m_toGUIHandler->sendAttitudeData(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write mode change to the GUI"
-                m_toGUIHandler->sendVehicleMode(sender.ID, component);
+                m_toGUIHandler->sendVehicleMode(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write Position data to the GUI:
-                m_toGUIHandler->sendPositionData(sender.ID, component);
+                m_toGUIHandler->sendPositionData(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateAirspeedTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAirspeedTopic> component = std::make_shared<DataStateTopic::StateAirspeedTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write Airspeed data to the GUI:
-                m_toGUIHandler->sendVehicleAirspeed(sender.ID, component);
+                m_toGUIHandler->sendVehicleAirspeed(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Battery::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write fueld data to the GUI:
-                m_toGUIHandler->sendVehicleFuel(sender.ID, component);
+                m_toGUIHandler->sendVehicleFuel(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write GPS fix to the GUI:
-                m_toGUIHandler->sendVehicleGPS(sender.ID, component);
+                m_toGUIHandler->sendVehicleGPS(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write fuel data to the GUI:
-                m_toGUIHandler->sendVehicleText(sender.ID, component);
+                m_toGUIHandler->sendVehicleText(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()){
                 // TODO:
@@ -405,14 +415,14 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write vehicle arm to the GUI:
-                m_toGUIHandler->sendVehicleArm(sender.ID, component);
+                m_toGUIHandler->sendVehicleArm(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Heartbeat::Name()){
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write heartbeat data to the GUI:
-                m_toGUIHandler->sendVehicleHeartbeat(sender.ID, component);
+                m_toGUIHandler->sendVehicleHeartbeat(vehicleID, component);
             }
 //            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemTime::Name()) {
 //                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemTime> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemTime>();
@@ -426,7 +436,7 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
     else if(topicName == m_MissionDataTopic.Name())
     {
         //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), sender.ID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), sender);
 
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
@@ -434,14 +444,14 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write mission items to the GUI:
-                m_toGUIHandler->sendVehicleMission(sender.ID, component->getMissionList());
+                m_toGUIHandler->sendVehicleMission(vehicleID, component->getMissionList());
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionHomeTopic> component = std::make_shared<MissionTopic::MissionHomeTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
                 std::shared_ptr<CommandItem::SpatialHome> castHome = std::dynamic_pointer_cast<CommandItem::SpatialHome>(component->getHome());
                 // Write mission items to the GUI:
-                m_toGUIHandler->sendVehicleHome(sender.ID, *castHome.get());
+                m_toGUIHandler->sendVehicleHome(vehicleID, *castHome.get());
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
                 std::cout<<"I have seen a misson item reached topic"<<std::endl;
@@ -449,7 +459,7 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Send mission item reached to the GUI:
-                m_toGUIHandler->sendMissionItemReached(sender.ID, component);
+                m_toGUIHandler->sendMissionItemReached(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                 std::cout<<"I have seen a misson item current topic"<<std::endl;
@@ -457,28 +467,28 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write current mission item to the GUI:
-                m_toGUIHandler->sendCurrentMissionItem(sender.ID, component);
+                m_toGUIHandler->sendCurrentMissionItem(vehicleID, component);
             }
             else if(componentsUpdated.at(i) == MissionTopic::VehicleTargetTopic::Name()) {
                 std::shared_ptr<MissionTopic::VehicleTargetTopic> component = std::make_shared<MissionTopic::VehicleTargetTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write vehicle target to the GUI:
-                m_toGUIHandler->sendVehicleTarget(sender.ID, component);
+                m_toGUIHandler->sendVehicleTarget(vehicleID, component);
             }
         }
     }
     else if(topicName == m_SensorFootprintDataTopic.Name())
     {
         //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), sender.ID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
                 std::shared_ptr<DataVehicleSensors::SensorVertices_Global> component = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
                 m_SensorFootprintDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write sensor footprint verticies to the GUI:
-                m_toGUIHandler->sendSensorFootprint(sender.ID, component);
+                m_toGUIHandler->sendSensorFootprint(vehicleID, component);
             }
         }
     }
@@ -540,7 +550,7 @@ void ModuleGroundStation::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPos
 //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
 //! \param vehicleID Vehilce ID of the newly available vehicle
 //!
-void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
+void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     UNUSED(vehicleID);
     // TODO-PAT: Instead of grabbing all vehicles, only send the one thats added to the GUI

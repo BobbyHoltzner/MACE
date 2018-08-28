@@ -12,13 +12,16 @@
 
 #include "mavlink.h"
 
+#include "module_vehicle_MAVLINK/mavlink_entity_key.h"
+
 namespace MAVLINKVehicleControllers {
 
 template <typename T>
 using ActionSend_IntCommand_TargedWithResponse = Controllers::ActionSend<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
-    MaceCore::ModuleCharacteristic,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, T>,
+    MavlinkEntityKey,
     T,
     mavlink_command_int_t,
     MAVLINK_MSG_ID_COMMAND_ACK
@@ -27,8 +30,9 @@ using ActionSend_IntCommand_TargedWithResponse = Controllers::ActionSend<
 template<typename T>
 using ActionFinish_IntCommand = Controllers::ActionFinish<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
-    MaceCore::ModuleCharacteristic,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, T>,
+    MavlinkEntityKey,
     uint8_t,
     mavlink_command_ack_t,
     MAVLINK_MSG_ID_COMMAND_ACK
@@ -36,13 +40,13 @@ using ActionFinish_IntCommand = Controllers::ActionFinish<
 
 
 template <typename COMMANDDATASTRUCTURE, const int COMMANDTYPE>
-class Controller_GenericIntCommand : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, COMMANDDATASTRUCTURE>,
+class Controller_GenericIntCommand : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, COMMANDDATASTRUCTURE>,
         public ActionSend_IntCommand_TargedWithResponse<COMMANDDATASTRUCTURE>,
         public ActionFinish_IntCommand<COMMANDDATASTRUCTURE>
 {
 private:
 
-    std::unordered_map<MaceCore::ModuleCharacteristic, MaceCore::ModuleCharacteristic> m_CommandRequestedFrom;
+    std::unordered_map<MavlinkEntityKey, MavlinkEntityKey> m_CommandRequestedFrom;
 
 public:
 
@@ -54,17 +58,16 @@ protected:
 
 protected:
 
-    virtual bool Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_command_int_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const COMMANDDATASTRUCTURE &data, const MavlinkEntityKey &sender, const MavlinkEntityKey &target, mavlink_command_int_t &cmd, MavlinkEntityKey &queueObj)
     {
         UNUSED(sender);
         UNUSED(target);
-        queueObj.ID = data.getTargetSystem();
-        queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        queueObj = this->GetModuleFromMAVLINKVehicleID(data.getTargetSystem());
 
         cmd = initializeCommandInt();
         cmd.command = COMMANDTYPE;
         cmd.target_system = data.getTargetSystem();
-        cmd.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
+        cmd.target_component = 0;
 
         FillCommand(data, cmd);
 
@@ -72,7 +75,7 @@ protected:
     }
 
 
-    virtual bool Finish_Receive(const mavlink_command_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const mavlink_command_ack_t &msg, const MavlinkEntityKey &sender, uint8_t & ack, MavlinkEntityKey &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
@@ -82,8 +85,8 @@ protected:
 
 public:
 
-    Controller_GenericIntCommand(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
+    Controller_GenericIntCommand(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
         ActionSend_IntCommand_TargedWithResponse<COMMANDDATASTRUCTURE>(this, mavlink_msg_command_int_encode_chan),
         ActionFinish_IntCommand<COMMANDDATASTRUCTURE>(this, mavlink_msg_command_ack_decode)
     {

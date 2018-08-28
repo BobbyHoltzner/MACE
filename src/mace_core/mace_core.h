@@ -66,27 +66,31 @@ public:
     //!
     void AddDataFusion(const std::shared_ptr<MaceData> dataFusion);
 
+
     //!
     //! \brief AddVehicle Add vehicle to data fusion
     //! \param ID Vehicle ID to add
     //! \param vehicle Vehicle module pointer
     //!
-    void AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle);
+    void AddLocalModule_Vehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle);
+
 
     //!
     //! \brief RemoveVehicle Remove vehicle from data fusion
     //! \param ID Vehicle ID to remove
     //!
-    void RemoveVehicle(const std::string &ID);
+    void RemoveLocalModule_Vehicle(const std::string &ID);
 
 
 public: //The following functions add specific modules to connect to mace core
+
 
     //!
     //! \brief AddModule Add module to data fusion
     //! \param module Module to add
     //!
-    void AddModule(const std::shared_ptr<ModuleBase> &module);
+    void AddLocalModule(const std::shared_ptr<ModuleBase> &module);
+
 
     //!
     //! \brief AddGroundStationModule Add ground station module
@@ -94,11 +98,13 @@ public: //The following functions add specific modules to connect to mace core
     //!
     void AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation);
 
+
     //!
     //! \brief AddExternalLink Add external link module
     //! \param externalLink External link module setup
     //!
-    void AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink);
+    void AddLocalModule_ExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink);
+
 
     //!
     //! \brief AddPathPlanningModule Add path planning module
@@ -112,11 +118,32 @@ public: //The following functions add specific modules to connect to mace core
     //!
     void AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros);
 
+
+    //!
+    //! \brief Add a generic RTA module to the MACE instance
+    //!
+    //! This function simpy consults the module and calls either AddLocalModule_GlobalRTA or AddLocalModule_SpecializedRTA
+    //! \param rta Module to add
+    //!
+    void AddLocalModule_GenericRTA(const std::shared_ptr<IModuleCommandRTA> &rta);
+
+
     //!
     //! \brief AddRTAModule Add RTA module
     //! \param rta RTA module setup
     //!
-    void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
+    void AddLocalModule_GlobalRTA(const std::shared_ptr<IModuleCommandRTA> &rta);
+
+
+    //!
+    //! \brief Add a specialized RTA module
+    //!
+    //! A specialized RTA module coordianates with a specific resource (vehicle).
+    //! There may be multiple specalized RTA modules per MACE instance.
+    //! \param rta RTA module
+    //!
+    void AddLocalModule_SpecializedRTA(const std::shared_ptr<IModuleCommandRTA> &rta);
+
 
     //!
     //! \brief AddSensorsModule Add sensors module
@@ -169,6 +196,23 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
     //!
+    //! \brief Event to notify the core that a new module has been attached to some MACE instance.
+    //! \param sender Module that generated the new module. May be different than the module itself (Like and External Link)
+    //! \param characterstic Characterstic that uniquly identifies the module on the MACE topology
+    //! \param type Type of module
+    //!
+    virtual void Event_NewModule(const ModuleBase* sender, const ModuleCharacteristic &characterstic, const ModuleClasses &type);
+
+
+    //!
+    //! \brief Event to signify that a new vehicle is available
+    //! \param sender Module that generated the vehicle. May be different than the vehicle itself if the vehicle came in over External Link
+    //! \param publicID Public ID of vehicle, may be different of MACE's internal address
+    //! \param vehicleModule MACE internal address of vehicle Module
+    //!
+    virtual void Events_NewVehicle(const ModuleBase *sender, const uint8_t publicID, const ModuleCharacteristic &vehicleModule);
+
+
     //! \brief Event_ForceVehicleDataSync Event to force a data dump of everything available to a vehicle
     //! \param sender Sender module
     //! \param targetSystemID Target ID of event
@@ -300,12 +344,6 @@ public:
     /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
     /////////////////////////////////////////////////////////////////////////////////////////
 
-    //!
-    //! \brief EventVehicle_NewConstructedVehicle New vehicle has been constructed
-    //! \param sender Sender module
-    //! \param newVehicleObserved New vehicle ID
-    //!
-    virtual void EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
 
     //!
     //! \brief EventVehicle_NewOnboardVehicleMission New onboard mission
@@ -333,6 +371,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
     ////////////////////////////////////////////////////////////////////////////////////////
+
 
     //!
     //! \brief GVEvents_NewHomePosition New home position
@@ -395,12 +434,6 @@ public:
     //!
     virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID);
 
-    //!
-    //! \brief ExternalEvent_NewModule New module available to external link
-    //! \param sender Sender module
-    //! \param newModule New module
-    //!
-    virtual void ExternalEvent_NewModule(const void *sender, const ModuleCharacteristic &newModule);
 
     //!
     //! \brief ExternalEvent_FinishedRXMissionList Event signaling the receipt of a mission list
@@ -416,12 +449,14 @@ public:
     //!
     virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK);
 
+
     //!
     //! \brief ExternalEvent_RequestingDataSync Request data sync of target's data
     //! \param sender Sender module
     //! \param targetID Target ID
     //!
-    virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID);
+    virtual void ExternalEvent_RequestingDataSync(const void *sender, const ModuleCharacteristic &module);
+
 
     //!
     //! \brief ExternalEvent_NewOnboardMission New onboard mission event
@@ -458,7 +493,7 @@ public:
     //! \param key Key indicating the characteristics of the boundary
     //! \param boundary Data for the boundary
     //!
-    void Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryCharacterisic &key, const BoundaryItem::BoundaryList &boundary) override;
+    void Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryCharacterisic &characterstic, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -646,7 +681,7 @@ private:
                     ((CommandItem::std::shared_ptr<AbstractCommandItem>)Copy)->setTargetSystem(ID);
                 }
                 */
-                it->second->MarshalCommand(vehicleCommand, data);
+                it->second->MarshalCommand(vehicleCommand, data, sender);
             }
 
             for(auto it = m_ExternalLink.begin() ; it != m_ExternalLink.end() ; ++it)
@@ -661,7 +696,7 @@ private:
         }
         else {
             if(m_VehicleIDToPort.find(vehicleID) != m_VehicleIDToPort.cend()){
-                m_VehicleIDToPort.at(vehicleID)->MarshalCommand(vehicleCommand, data);
+                m_VehicleIDToPort.at(vehicleID)->MarshalCommand(vehicleCommand, data, sender);
             }
 
             else if(m_ExternalLinkIDToPort.find(vehicleID) != m_ExternalLinkIDToPort.cend()){
@@ -673,11 +708,51 @@ private:
         }
     }
 
+
+public:
+
+    //!
+    //! \brief Set the identifier for this MACE instance
+    //! \param ID Identifier
+    //!
+    void setMaceInstanceID(const uint8_t ID)
+    {
+        m_MaceInstanceID = ID;
+        m_MaceInstanceIDSet = true;
+    }
+
+
+    //!
+    //! \brief Get the identifier for this MACE instance
+    //! \throws std::runtime_error Thrown if no identifier is given
+    //! \return Identifier
+    //!
+    uint8_t getMaceInstanceID() const
+    {
+        if(m_MaceInstanceIDSet == false)
+            throw std::runtime_error("No MACE Instance ID set!");
+
+        return m_MaceInstanceID;
+    }
+
+
+    //!
+    //! \brief Reserve Module IDs. This prevents the core from assigning this number
+    //!
+    //! Used in the case of statically assigned modules
+    //! \param IDs Vector of ID's to reserve, will replace current vector
+    //!
+    void setReservedIDs(const std::vector<int> &IDs)
+    {
+        m_ReservedModuleIDs = IDs;
+    }
+
 private:
     mutable std::mutex m_VehicleMutex;
 
     std::unordered_map<const ModuleBase*, std::unordered_map<std::string, TopicCharacteristic>> m_TopicsToReceive;
     std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
+    std::mutex m_TopicNotifierMutex;
 
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
 
@@ -691,7 +766,15 @@ private:
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
     std::shared_ptr<IModuleCommandROS> m_ROS;
     std::shared_ptr<IModuleCommandSensors> m_Sensors;
-    std::shared_ptr<IModuleCommandRTA> m_RTA;
+    std::shared_ptr<IModuleCommandRTA> m_GlobalRTA;
+    std::vector<std::shared_ptr<IModuleCommandRTA>> m_SpecailizedRTA;
+
+    //! Map of modules and the local key to identiy them.
+    std::unordered_map<uint32_t, std::shared_ptr<ModuleBase>> m_Modules;
+    uint8_t m_MaceInstanceID;
+    bool m_MaceInstanceIDSet;
+
+    std::vector<int> m_ReservedModuleIDs;
 
     std::shared_ptr<MaceData> m_DataFusion;
 };

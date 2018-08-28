@@ -21,8 +21,9 @@ enum class Actions
 //! \brief Interface for all controllers to take.
 //!
 //! \template MESSAGETYPE the type of message the controller is to injest/output
+//! \template COMPONENT_KEY object that keys individual resources on the mavlink protocol
 //!
-template <typename MESSAGETYPE>
+template <typename MESSAGETYPE, typename COMPONENT_KEY>
 class IController
 {
 
@@ -33,7 +34,7 @@ public:
     //! \param message Message to receive
     //! \return True if action was taken, false if this module didnt' care about message
     //!
-    virtual bool ReceiveMessage(const MESSAGETYPE* message, const MaceCore::ModuleCharacteristic &sender) = 0;
+    virtual bool ReceiveMessage(const MESSAGETYPE* message, const COMPONENT_KEY &sender) = 0;
 
     virtual ~IController() = default;
 

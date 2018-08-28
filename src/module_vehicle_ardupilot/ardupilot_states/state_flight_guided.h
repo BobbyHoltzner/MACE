@@ -73,16 +73,15 @@ private:
 public:
     void cbiArdupilotTimeout_TargetLocal(const TargetItem::CartesianDynamicTarget &target) override
     {
-        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
         auto ptr = static_cast<MAVLINKVehicleControllers::ControllerGuidedTargetItem_Local<MAVLINKVehicleControllers::TargetControllerStructLocal>*>(collection->At("localGuidedController"));
         if(ptr != nullptr)
         {
-            MaceCore::ModuleCharacteristic sender;
-            sender.ID = 255;
-            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            MavlinkEntityKey targetID = Owner().getMAVLINKID();
+            MavlinkEntityKey sender = 255;
 
             MAVLINKVehicleControllers::TargetControllerStructLocal action;
-            action.targetID = Owner().getMAVLINKID();
+            action.targetID = targetID;
             action.target = target;
 
             ptr->Broadcast(action, sender);

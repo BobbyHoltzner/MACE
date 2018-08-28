@@ -9,8 +9,8 @@ typedef struct __mace_boundary_item_t {
  float y; /*< PARAM6 / y position: global: longitude*/
  float z; /*< PARAM7 / z position: global: altitude (relative or absolute, depending on frame.*/
  uint16_t seq; /*< Sequence*/
- uint8_t boundary_system; /*< System ID*/
- uint8_t boundary_creator; /*< Creator ID*/
+ uint8_t boundary_host_sysid; /*< System ID*/
+ uint8_t boundary_host_compid; /*< Creator ID*/
  uint8_t boundary_identifier; /*< Boundary type, see boundary_identifier*/
  uint8_t frame; /*< The coordinate system of the boundary. see MAV_FRAME in mavlink_types.h*/
 }) mace_boundary_item_t;
@@ -34,8 +34,8 @@ typedef struct __mace_boundary_item_t {
          { "y", NULL, MACE_TYPE_FLOAT, 0, 4, offsetof(mace_boundary_item_t, y) }, \
          { "z", NULL, MACE_TYPE_FLOAT, 0, 8, offsetof(mace_boundary_item_t, z) }, \
          { "seq", NULL, MACE_TYPE_UINT16_T, 0, 12, offsetof(mace_boundary_item_t, seq) }, \
-         { "boundary_system", NULL, MACE_TYPE_UINT8_T, 0, 14, offsetof(mace_boundary_item_t, boundary_system) }, \
-         { "boundary_creator", NULL, MACE_TYPE_UINT8_T, 0, 15, offsetof(mace_boundary_item_t, boundary_creator) }, \
+         { "boundary_host_sysid", NULL, MACE_TYPE_UINT8_T, 0, 14, offsetof(mace_boundary_item_t, boundary_host_sysid) }, \
+         { "boundary_host_compid", NULL, MACE_TYPE_UINT8_T, 0, 15, offsetof(mace_boundary_item_t, boundary_host_compid) }, \
          { "boundary_identifier", NULL, MACE_TYPE_UINT8_T, 0, 16, offsetof(mace_boundary_item_t, boundary_identifier) }, \
          { "frame", NULL, MACE_TYPE_UINT8_T, 0, 17, offsetof(mace_boundary_item_t, frame) }, \
          } \
@@ -48,8 +48,8 @@ typedef struct __mace_boundary_item_t {
          { "y", NULL, MACE_TYPE_FLOAT, 0, 4, offsetof(mace_boundary_item_t, y) }, \
          { "z", NULL, MACE_TYPE_FLOAT, 0, 8, offsetof(mace_boundary_item_t, z) }, \
          { "seq", NULL, MACE_TYPE_UINT16_T, 0, 12, offsetof(mace_boundary_item_t, seq) }, \
-         { "boundary_system", NULL, MACE_TYPE_UINT8_T, 0, 14, offsetof(mace_boundary_item_t, boundary_system) }, \
-         { "boundary_creator", NULL, MACE_TYPE_UINT8_T, 0, 15, offsetof(mace_boundary_item_t, boundary_creator) }, \
+         { "boundary_host_sysid", NULL, MACE_TYPE_UINT8_T, 0, 14, offsetof(mace_boundary_item_t, boundary_host_sysid) }, \
+         { "boundary_host_compid", NULL, MACE_TYPE_UINT8_T, 0, 15, offsetof(mace_boundary_item_t, boundary_host_compid) }, \
          { "boundary_identifier", NULL, MACE_TYPE_UINT8_T, 0, 16, offsetof(mace_boundary_item_t, boundary_identifier) }, \
          { "frame", NULL, MACE_TYPE_UINT8_T, 0, 17, offsetof(mace_boundary_item_t, frame) }, \
          } \
@@ -62,8 +62,8 @@ typedef struct __mace_boundary_item_t {
  * @param component_id ID of this component (e.g. 200 for IMU)
  * @param msg The MAVLink message to compress the data into
  *
- * @param boundary_system System ID
- * @param boundary_creator Creator ID
+ * @param boundary_host_sysid System ID
+ * @param boundary_host_compid Creator ID
  * @param boundary_identifier Boundary type, see boundary_identifier
  * @param seq Sequence
  * @param frame The coordinate system of the boundary. see MAV_FRAME in mavlink_types.h
@@ -73,7 +73,7 @@ typedef struct __mace_boundary_item_t {
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_boundary_item_pack(uint8_t system_id, uint8_t component_id, mace_message_t* msg,
-                               uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_identifier, uint16_t seq, uint8_t frame, float x, float y, float z)
+                               uint8_t boundary_host_sysid, uint8_t boundary_host_compid, uint8_t boundary_identifier, uint16_t seq, uint8_t frame, float x, float y, float z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_BOUNDARY_ITEM_LEN];
@@ -81,8 +81,8 @@ static inline uint16_t mace_msg_boundary_item_pack(uint8_t system_id, uint8_t co
     _mace_put_float(buf, 4, y);
     _mace_put_float(buf, 8, z);
     _mace_put_uint16_t(buf, 12, seq);
-    _mace_put_uint8_t(buf, 14, boundary_system);
-    _mace_put_uint8_t(buf, 15, boundary_creator);
+    _mace_put_uint8_t(buf, 14, boundary_host_sysid);
+    _mace_put_uint8_t(buf, 15, boundary_host_compid);
     _mace_put_uint8_t(buf, 16, boundary_identifier);
     _mace_put_uint8_t(buf, 17, frame);
 
@@ -93,8 +93,8 @@ static inline uint16_t mace_msg_boundary_item_pack(uint8_t system_id, uint8_t co
     packet.y = y;
     packet.z = z;
     packet.seq = seq;
-    packet.boundary_system = boundary_system;
-    packet.boundary_creator = boundary_creator;
+    packet.boundary_host_sysid = boundary_host_sysid;
+    packet.boundary_host_compid = boundary_host_compid;
     packet.boundary_identifier = boundary_identifier;
     packet.frame = frame;
 
@@ -111,8 +111,8 @@ static inline uint16_t mace_msg_boundary_item_pack(uint8_t system_id, uint8_t co
  * @param component_id ID of this component (e.g. 200 for IMU)
  * @param chan The MAVLink channel this message will be sent over
  * @param msg The MAVLink message to compress the data into
- * @param boundary_system System ID
- * @param boundary_creator Creator ID
+ * @param boundary_host_sysid System ID
+ * @param boundary_host_compid Creator ID
  * @param boundary_identifier Boundary type, see boundary_identifier
  * @param seq Sequence
  * @param frame The coordinate system of the boundary. see MAV_FRAME in mavlink_types.h
@@ -123,7 +123,7 @@ static inline uint16_t mace_msg_boundary_item_pack(uint8_t system_id, uint8_t co
  */
 static inline uint16_t mace_msg_boundary_item_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
                                mace_message_t* msg,
-                                   uint8_t boundary_system,uint8_t boundary_creator,uint8_t boundary_identifier,uint16_t seq,uint8_t frame,float x,float y,float z)
+                                   uint8_t boundary_host_sysid,uint8_t boundary_host_compid,uint8_t boundary_identifier,uint16_t seq,uint8_t frame,float x,float y,float z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_BOUNDARY_ITEM_LEN];
@@ -131,8 +131,8 @@ static inline uint16_t mace_msg_boundary_item_pack_chan(uint8_t system_id, uint8
     _mace_put_float(buf, 4, y);
     _mace_put_float(buf, 8, z);
     _mace_put_uint16_t(buf, 12, seq);
-    _mace_put_uint8_t(buf, 14, boundary_system);
-    _mace_put_uint8_t(buf, 15, boundary_creator);
+    _mace_put_uint8_t(buf, 14, boundary_host_sysid);
+    _mace_put_uint8_t(buf, 15, boundary_host_compid);
     _mace_put_uint8_t(buf, 16, boundary_identifier);
     _mace_put_uint8_t(buf, 17, frame);
 
@@ -143,8 +143,8 @@ static inline uint16_t mace_msg_boundary_item_pack_chan(uint8_t system_id, uint8
     packet.y = y;
     packet.z = z;
     packet.seq = seq;
-    packet.boundary_system = boundary_system;
-    packet.boundary_creator = boundary_creator;
+    packet.boundary_host_sysid = boundary_host_sysid;
+    packet.boundary_host_compid = boundary_host_compid;
     packet.boundary_identifier = boundary_identifier;
     packet.frame = frame;
 
@@ -165,7 +165,7 @@ static inline uint16_t mace_msg_boundary_item_pack_chan(uint8_t system_id, uint8
  */
 static inline uint16_t mace_msg_boundary_item_encode(uint8_t system_id, uint8_t component_id, mace_message_t* msg, const mace_boundary_item_t* boundary_item)
 {
-    return mace_msg_boundary_item_pack(system_id, component_id, msg, boundary_item->boundary_system, boundary_item->boundary_creator, boundary_item->boundary_identifier, boundary_item->seq, boundary_item->frame, boundary_item->x, boundary_item->y, boundary_item->z);
+    return mace_msg_boundary_item_pack(system_id, component_id, msg, boundary_item->boundary_host_sysid, boundary_item->boundary_host_compid, boundary_item->boundary_identifier, boundary_item->seq, boundary_item->frame, boundary_item->x, boundary_item->y, boundary_item->z);
 }
 
 /**
@@ -179,15 +179,15 @@ static inline uint16_t mace_msg_boundary_item_encode(uint8_t system_id, uint8_t 
  */
 static inline uint16_t mace_msg_boundary_item_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mace_message_t* msg, const mace_boundary_item_t* boundary_item)
 {
-    return mace_msg_boundary_item_pack_chan(system_id, component_id, chan, msg, boundary_item->boundary_system, boundary_item->boundary_creator, boundary_item->boundary_identifier, boundary_item->seq, boundary_item->frame, boundary_item->x, boundary_item->y, boundary_item->z);
+    return mace_msg_boundary_item_pack_chan(system_id, component_id, chan, msg, boundary_item->boundary_host_sysid, boundary_item->boundary_host_compid, boundary_item->boundary_identifier, boundary_item->seq, boundary_item->frame, boundary_item->x, boundary_item->y, boundary_item->z);
 }
 
 /**
  * @brief Send a boundary_item message
  * @param chan MAVLink channel to send the message
  *
- * @param boundary_system System ID
- * @param boundary_creator Creator ID
+ * @param boundary_host_sysid System ID
+ * @param boundary_host_compid Creator ID
  * @param boundary_identifier Boundary type, see boundary_identifier
  * @param seq Sequence
  * @param frame The coordinate system of the boundary. see MAV_FRAME in mavlink_types.h
@@ -197,7 +197,7 @@ static inline uint16_t mace_msg_boundary_item_encode_chan(uint8_t system_id, uin
  */
 #ifdef MACE_USE_CONVENIENCE_FUNCTIONS
 
-static inline void mace_msg_boundary_item_send(mace_channel_t chan, uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_identifier, uint16_t seq, uint8_t frame, float x, float y, float z)
+static inline void mace_msg_boundary_item_send(mace_channel_t chan, uint8_t boundary_host_sysid, uint8_t boundary_host_compid, uint8_t boundary_identifier, uint16_t seq, uint8_t frame, float x, float y, float z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_BOUNDARY_ITEM_LEN];
@@ -205,8 +205,8 @@ static inline void mace_msg_boundary_item_send(mace_channel_t chan, uint8_t boun
     _mace_put_float(buf, 4, y);
     _mace_put_float(buf, 8, z);
     _mace_put_uint16_t(buf, 12, seq);
-    _mace_put_uint8_t(buf, 14, boundary_system);
-    _mace_put_uint8_t(buf, 15, boundary_creator);
+    _mace_put_uint8_t(buf, 14, boundary_host_sysid);
+    _mace_put_uint8_t(buf, 15, boundary_host_compid);
     _mace_put_uint8_t(buf, 16, boundary_identifier);
     _mace_put_uint8_t(buf, 17, frame);
 
@@ -217,8 +217,8 @@ static inline void mace_msg_boundary_item_send(mace_channel_t chan, uint8_t boun
     packet.y = y;
     packet.z = z;
     packet.seq = seq;
-    packet.boundary_system = boundary_system;
-    packet.boundary_creator = boundary_creator;
+    packet.boundary_host_sysid = boundary_host_sysid;
+    packet.boundary_host_compid = boundary_host_compid;
     packet.boundary_identifier = boundary_identifier;
     packet.frame = frame;
 
@@ -234,7 +234,7 @@ static inline void mace_msg_boundary_item_send(mace_channel_t chan, uint8_t boun
 static inline void mace_msg_boundary_item_send_struct(mace_channel_t chan, const mace_boundary_item_t* boundary_item)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
-    mace_msg_boundary_item_send(chan, boundary_item->boundary_system, boundary_item->boundary_creator, boundary_item->boundary_identifier, boundary_item->seq, boundary_item->frame, boundary_item->x, boundary_item->y, boundary_item->z);
+    mace_msg_boundary_item_send(chan, boundary_item->boundary_host_sysid, boundary_item->boundary_host_compid, boundary_item->boundary_identifier, boundary_item->seq, boundary_item->frame, boundary_item->x, boundary_item->y, boundary_item->z);
 #else
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_ITEM, (const char *)boundary_item, MACE_MSG_ID_BOUNDARY_ITEM_MIN_LEN, MACE_MSG_ID_BOUNDARY_ITEM_LEN, MACE_MSG_ID_BOUNDARY_ITEM_CRC);
 #endif
@@ -248,7 +248,7 @@ static inline void mace_msg_boundary_item_send_struct(mace_channel_t chan, const
   is usually the receive buffer for the channel, and allows a reply to an
   incoming message with minimum stack space usage.
  */
-static inline void mace_msg_boundary_item_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_identifier, uint16_t seq, uint8_t frame, float x, float y, float z)
+static inline void mace_msg_boundary_item_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t boundary_host_sysid, uint8_t boundary_host_compid, uint8_t boundary_identifier, uint16_t seq, uint8_t frame, float x, float y, float z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char *buf = (char *)msgbuf;
@@ -256,8 +256,8 @@ static inline void mace_msg_boundary_item_send_buf(mace_message_t *msgbuf, mace_
     _mace_put_float(buf, 4, y);
     _mace_put_float(buf, 8, z);
     _mace_put_uint16_t(buf, 12, seq);
-    _mace_put_uint8_t(buf, 14, boundary_system);
-    _mace_put_uint8_t(buf, 15, boundary_creator);
+    _mace_put_uint8_t(buf, 14, boundary_host_sysid);
+    _mace_put_uint8_t(buf, 15, boundary_host_compid);
     _mace_put_uint8_t(buf, 16, boundary_identifier);
     _mace_put_uint8_t(buf, 17, frame);
 
@@ -268,8 +268,8 @@ static inline void mace_msg_boundary_item_send_buf(mace_message_t *msgbuf, mace_
     packet->y = y;
     packet->z = z;
     packet->seq = seq;
-    packet->boundary_system = boundary_system;
-    packet->boundary_creator = boundary_creator;
+    packet->boundary_host_sysid = boundary_host_sysid;
+    packet->boundary_host_compid = boundary_host_compid;
     packet->boundary_identifier = boundary_identifier;
     packet->frame = frame;
 
@@ -284,21 +284,21 @@ static inline void mace_msg_boundary_item_send_buf(mace_message_t *msgbuf, mace_
 
 
 /**
- * @brief Get field boundary_system from boundary_item message
+ * @brief Get field boundary_host_sysid from boundary_item message
  *
  * @return System ID
  */
-static inline uint8_t mace_msg_boundary_item_get_boundary_system(const mace_message_t* msg)
+static inline uint8_t mace_msg_boundary_item_get_boundary_host_sysid(const mace_message_t* msg)
 {
     return _MACE_RETURN_uint8_t(msg,  14);
 }
 
 /**
- * @brief Get field boundary_creator from boundary_item message
+ * @brief Get field boundary_host_compid from boundary_item message
  *
  * @return Creator ID
  */
-static inline uint8_t mace_msg_boundary_item_get_boundary_creator(const mace_message_t* msg)
+static inline uint8_t mace_msg_boundary_item_get_boundary_host_compid(const mace_message_t* msg)
 {
     return _MACE_RETURN_uint8_t(msg,  15);
 }
@@ -376,8 +376,8 @@ static inline void mace_msg_boundary_item_decode(const mace_message_t* msg, mace
     boundary_item->y = mace_msg_boundary_item_get_y(msg);
     boundary_item->z = mace_msg_boundary_item_get_z(msg);
     boundary_item->seq = mace_msg_boundary_item_get_seq(msg);
-    boundary_item->boundary_system = mace_msg_boundary_item_get_boundary_system(msg);
-    boundary_item->boundary_creator = mace_msg_boundary_item_get_boundary_creator(msg);
+    boundary_item->boundary_host_sysid = mace_msg_boundary_item_get_boundary_host_sysid(msg);
+    boundary_item->boundary_host_compid = mace_msg_boundary_item_get_boundary_host_compid(msg);
     boundary_item->boundary_identifier = mace_msg_boundary_item_get_boundary_identifier(msg);
     boundary_item->frame = mace_msg_boundary_item_get_frame(msg);
 #else

@@ -11,10 +11,11 @@
 namespace Controllers {
 
 
-template<typename MessageType>
+template<typename MessageType, typename COMPONENT_KEY>
 class ControllerCollection
 {
 public:
+
 
     ~ControllerCollection()
     {
@@ -27,7 +28,7 @@ public:
         controllerMutex.unlock();
     }
 
-    IController<MessageType>* At(const std::string &name)
+    IController<MessageType, COMPONENT_KEY>* At(const std::string &name)
     {
         try
         {
@@ -49,13 +50,13 @@ public:
     //! \param name
     //! \param ptr
     //!
-    void Insert(const std::string &name, IController<MessageType>* ptr)
+    void Insert(const std::string &name, IController<MessageType, COMPONENT_KEY>* ptr)
     {
         controllers.insert({name, ptr});
     }
 
 
-    void ForAll(const std::function<void(IController<MessageType>*)> &lambda)
+    void ForAll(const std::function<void(IController<MessageType, COMPONENT_KEY>*)> &lambda)
     {
         controllerMutex.lock();
         for(auto it = controllers.cbegin() ; it != controllers.cend() ; ++it)
@@ -76,9 +77,9 @@ public:
     //! \param name Name of controller to remove
     //! \return Pointer that was being stored
     //!
-    IController<MessageType>* Remove(const std::string &name)
+    IController<MessageType, COMPONENT_KEY>* Remove(const std::string &name)
     {
-        IController<MessageType>* ptr = nullptr;
+        IController<MessageType, COMPONENT_KEY>* ptr = nullptr;
         try
         {
             ptr = controllers.at(name);
@@ -95,7 +96,7 @@ public:
         return ptr;
     }
 
-    std::unordered_map<std::string, IController<MessageType>*> controllers;
+    std::unordered_map<std::string, IController<MessageType, COMPONENT_KEY>*> controllers;
     std::mutex controllerMutex;
 };
 

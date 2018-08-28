@@ -48,7 +48,9 @@ class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public Modu
 public:
     ModuleVehicleArdupilot();
 
+
     ~ModuleVehicleArdupilot();
+
 
     //!
     //! \brief Provides object contains parameters values to configure module with
@@ -348,15 +350,17 @@ private:
 
 private:
 
+    uint8_t m_PublicVehicleID;
+
     std::mutex m_Mutex_StateMachine;
     hsm::StateMachine* stateMachine; /**< Member variable containing a pointer to the state
  machine. This state machine evolves the state per event updates and/or external commands. */
 
-    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
+    std::unordered_map<std::string, Controllers::IController<mavlink_message_t, int>*> m_TopicToControllers;
 
     MAVLINKVehicleControllers::ControllerMission * m_MissionController;
 
-    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *m_TransmissionQueue;
+    TransmitQueue<mavlink_message_t, MavlinkEntityKey> *m_TransmissionQueue;
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H

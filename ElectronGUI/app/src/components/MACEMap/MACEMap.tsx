@@ -11,6 +11,7 @@ import { ContextMenu } from '../../components/ContextMenu/ContextMenu';
 import { Heatmap } from '../mapLayers/heatmap';
 import * as L from 'leaflet';
 import { styles } from "./styles";
+import * as GlobalTypes from '../../types/globalTypings';
 
 
 type Props = {
@@ -19,8 +20,8 @@ type Props = {
     selectedVehicleID: string,
     maxZoom: number,
     mapZoom: number,
-    mapCenter: PositionType,
-    globalOrigin: PositionType,
+    mapCenter: GlobalTypes.PositionType,
+    globalOrigin: GlobalTypes.PositionType,
     updateMapCenter: (e: L.DragEndEvent) => void,
     contextSetHome: () => void,
     contextSetGlobal: () => void,
@@ -28,12 +29,12 @@ type Props = {
     contextSetTakeoff: () => void,
     setContextAnchor: (e: L.LeafletMouseEvent) => void
     contextAnchor: L.LeafletMouseEvent,
-    environmentBoundary: PositionType[],
-    drawPolygonPts?: PositionType[],
+    environmentBoundary: GlobalTypes.PositionType[],
+    drawPolygonPts?: GlobalTypes.PositionType[],
     onAddPolygonPt: (e: L.LeafletMouseEvent) => void,
-    environmentSettings: EnvironmentSettingsType,
+    environmentSettings: GlobalTypes.EnvironmentSettingsType,
     gridPts?: {inPoly: L.LatLng[], trimmedPts: L.LatLng[]},
-    envBoundingBox?: PositionType[]
+    envBoundingBox?: GlobalTypes.PositionType[]
 }
 
 type State = {

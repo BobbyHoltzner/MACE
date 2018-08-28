@@ -100,13 +100,27 @@ int main(int argc, char *argv[])
     bool addedGroundStation = false;
     bool addedPathPlanning = false;
     bool addedROS = false;
-    bool addedRTA = false;
+    bool addedGlobalRTA = false;
     bool addedSensors = false;
     int numVehicles = 1;
 
+    // If a static address is given in config then distribute out
+    int hostMaceInstance;
+    if(parser.HasStaticMaceInstanceID() == true)
+    {
+        hostMaceInstance = parser.GetStaticMaceInstanceID();;
+    }
+    else {
+        throw std::runtime_error("No Mace instance ID is given.");
+        //MTB - Unimplimented funcationalty. If no ID is given MACE can determine an ID to use. This would require coordination to avoid conflicts.
+    }
+    core.setMaceInstanceID(hostMaceInstance);
+
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string > modules = parser.GetCreatedModules();
     std::vector<std::thread*> threads;
+    std::vector<int> reservedIDs;
 
+    /// Configure modules
     for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
     {
         std::shared_ptr<MaceCore::ModuleBase> module = it->first;
@@ -121,19 +135,59 @@ int main(int argc, char *argv[])
         //configure module
         module->ConfigureModule(parser.GetModuleConfiguration(module));
 
-        //start thread
-        std::thread *thread = new std::thread([module]()
+        if(module->HasID() == true)
         {
-            module->start();
-        });
-        threads.push_back(thread);
+            reservedIDs.push_back(module->GetID());
+        }
+    }
 
-        //add to core (and check if too many have been added)
+
+    /// Set the reserved ID's in the core so it doesn't assign an already assigned module
+    core.setReservedIDs(reservedIDs);
+
+
+    /*
+    /// More set up that requires every module to be configured
+    for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
+    {
+        std::shared_ptr<MaceCore::ModuleBase> module = it->first;
+        MaceCore::ModuleClasses moduleClass = module->ModuleClass();
+        switch (moduleClass) {
+            case MaceCore::ModuleClasses::RTA:
+            {
+                std::shared_ptr<MaceCore::IModuleCommandRTA> m = std::dynamic_pointer_cast<MaceCore::IModuleCommandRTA>(module);
+
+                m->GetMetaData();
+            }
+            default:
+            {
+                continue;
+            }
+        }
+    }
+    */
+
+
+    /// Add modules to core
+    for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
+    {
+        std::shared_ptr<MaceCore::ModuleBase> module = it->first;
         MaceCore::ModuleClasses moduleClass = module->ModuleClass();
         switch (moduleClass) {
         case MaceCore::ModuleClasses::EXTERNAL_LINK:
         {
-            core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
+            const std::shared_ptr<MaceCore::IModuleCommandExternalLink> externalLink = std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module);
+
+            //notify external link of the attached mace instance
+            /*
+            MaceCore::ModuleCharacteristic hostMaceInstance;
+            hostMaceInstance.ID = MaceInstanceStaticID;
+            hostMaceInstance.Class = MaceCore::ModuleClasses::MACE_INSTANCE;
+            externalLink->MarshalCommand<MaceCore::ModuleCharacteristic>(MaceCore::ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, hostMaceInstance);
+            */
+
+            //add external link to core
+            core.AddLocalModule_ExternalLink(externalLink);
             break;
         }
         case  MaceCore::ModuleClasses::GROUND_STATION:
@@ -186,18 +240,30 @@ int main(int argc, char *argv[])
         }
         case MaceCore::ModuleClasses::RTA:
         {
-            if(addedRTA == true)
+
+
+            std::shared_ptr<MaceCore::IModuleCommandRTA> m = std::dynamic_pointer_cast<MaceCore::IModuleCommandRTA>(module);
+            if(m->getModuleMetaData().IsGlobal() == true)
             {
-                std::cerr << "Only one RTA module can be added" << std::endl;
-                return 1;
+                if(addedGlobalRTA == true)
+                {
+                    std::cerr << "Only one global RTA module can be added" << std::endl;
+                    return 1;
+                }
+
+                core.AddLocalModule_GlobalRTA(m);
+                addedGlobalRTA = true;
             }
-            core.AddRTAModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandRTA>(module));
-            addedRTA = true;
+            else
+            {
+                core.AddLocalModule_SpecializedRTA(m);
+            }
+
             break;
         }
         case MaceCore::ModuleClasses::VEHICLE_COMMS:
         {
-            core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
+            core.AddLocalModule_Vehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
             numVehicles++;
             break;
         }
@@ -207,8 +273,22 @@ int main(int argc, char *argv[])
             return 1;
         }
         }
+
+        core.Event_NewModule(module.get(), module->GetCharacteristic(), moduleClass);
     }
 
+    /// Start Modules
+    for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
+    {
+        std::shared_ptr<MaceCore::ModuleBase> module = it->first;
+        std::thread *thread = new std::thread([module]()
+        {
+            module->start();
+        });
+        threads.push_back(thread);
+    }
+
+    /// Signal start
     for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
     {
         std::shared_ptr<MaceCore::ModuleBase> module = it->first;

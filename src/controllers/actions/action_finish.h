@@ -12,6 +12,7 @@ namespace Controllers {
 //! The lambda set will be called with received ACK_TYPE when appropriate message is received.
 //!
 //! \template MESSAGE_TYPE Underlaying generic message type that all communication is done through
+//! \template COMPONENT_KEY Type that identifies actors on the network
 //! \template CONTROLLER_TYPE Type of controller being used by this action, will be used to queue transmissions.
 //! \template QUEUE_TYPE Type of object that will establish uniqueness in the queue.
 //!   This ultimatly allows a controller to have two identical messages going out to two entities.
@@ -19,7 +20,7 @@ namespace Controllers {
 //! \template MSG_TYPE Communication message class received by this action
 //! \template MESSAGE_REQUEST_ID Integer code for message that is to kick off this action
 //!
-template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename ACK_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID>
+template<typename MESSAGE_TYPE, typename COMPONENT_KEY, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename ACK_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID>
 class ActionFinish :
         public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
 {
@@ -39,7 +40,7 @@ protected:
     //! \param queueObj Key that is to be generated from message/sender which identifies what queued transmission needs to be removed
     //! \return True if message is to be consumed, false if ignored (and possibly consumed by another action)
     //!
-    virtual bool Finish_Receive(const MSG_TYPE &msg, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE& ack, QUEUE_TYPE &queueObj) = 0;
+    virtual bool Finish_Receive(const MSG_TYPE &msg, const COMPONENT_KEY &sender, ACK_TYPE& ack, QUEUE_TYPE &queueObj) = 0;
 
 public:
 
@@ -51,7 +52,7 @@ public:
 
 
         BASE::m_Controller-> template AddTriggeredLogic<MESSAGE_REQUEST_ID, MSG_TYPE>( BASE::m_DecodeFunc,
-                [this](const MSG_TYPE  &msg, const MaceCore::ModuleCharacteristic &sender){
+                [this](const MSG_TYPE  &msg, const COMPONENT_KEY &sender){
 
                     QUEUE_TYPE queueObj;
                     ACK_TYPE code;

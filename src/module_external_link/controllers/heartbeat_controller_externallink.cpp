@@ -45,6 +45,7 @@ void HeartbeatController_ExternalLink::run()
             heartbeat.mission_state = 0;
             heartbeat.protocol = 0;
             heartbeat.type = (uint8_t)Data::SystemType::SYSTEM_TYPE_GCS;
+            heartbeat.mavlinkID = this->systemID;
             if(m_CB)
                 m_CB->cbiHeartbeatController_transmitCommand(heartbeat);
         }

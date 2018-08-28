@@ -92,7 +92,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleROS::ModuleConfigurati
     cameraSensor->AddTerminalParameters("Type", MaceCore::ModuleParameterTerminalTypes::STRING, true, "rgb", {"rgb", "infrared"});
     structure.AddNonTerminal("CameraSensor", cameraSensor, true);
 
-    //    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
+    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, false);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -126,7 +126,10 @@ void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
         m_sensors.push_back(sensor);
     }
 
-    //    this->SetID(params->GetTerminalValue<int>("ID"));
+    if(params->HasTerminal("ID"))
+    {
+        this->SetID(params->GetTerminalValue<int>("ID"));
+    }
 }
 
 //!
@@ -156,10 +159,10 @@ void ModuleROS::NewTopicData(const std::string &topicName, const MaceCore::Modul
 //!
 void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    int senderID = sender.ID;
+    int senderID = sender.ModuleID;
     if(topicName == m_PlanningStateTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_PlanningStateTopic.Name(), senderID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_PlanningStateTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
             if(componentsUpdated.at(i) == mace::poseTopic::Cartesian_2D_Topic::Name()){
                 std::shared_ptr<mace::poseTopic::Cartesian_2D_Topic> component = std::make_shared<mace::poseTopic::Cartesian_2D_Topic>();
@@ -181,7 +184,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
     }
     else if(topicName == m_VehicleDataTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
@@ -207,7 +210,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
     }
     else if(topicName == m_MapTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
             if(componentsUpdated.at(i) == MapItemTopics::Occupancy2DGrid_Topic::Name()) {
                 std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic> component =  std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic>();
@@ -223,7 +226,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
 //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
 //! \param vehicleID Vehilce ID of the newly available vehicle
 //!
-void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
+void ModuleROS::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::cout<<"The ROS module is going to see a new vehicle"<<std::endl;
     // If vehicle does not exist in our map, insert into the map
@@ -699,6 +702,7 @@ void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& ms
         ptr->ROS_NewLaserScan(octoPointCloud, transform_position); // TODO: Include transform as arguments (convert to MACE data structures first - Orientation 3D)
     }); //this one explicitly calls mace_core and its up to you to handle in core
 }
+
 
 //!
 //! \brief renderOccupancyMap Render occupancy map in RViz

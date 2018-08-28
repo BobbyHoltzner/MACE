@@ -8,7 +8,8 @@
 
 
 ConfigurationReader_XML::ConfigurationReader_XML(const MaceCore::ModuleFactory *factory) :
-    m_Factory(factory)
+    m_Factory(factory),
+    m_MaceInstanceIDSet(false)
 {
 
 }
@@ -140,8 +141,11 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
             else
             {
                 std::string defaultValue = structure->getDefaultTerminalValue(it->first);
-                result.warnings.push_back(nestedName + " not set, using default value of " + defaultValue);
-                valueContainer->AddTerminalValueFromString(it->first, defaultValue, structure->getTerminalType(it->first));
+                if(defaultValue != "")
+                {
+                    result.warnings.push_back(nestedName + " not set, using default value of " + defaultValue);
+                    valueContainer->AddTerminalValueFromString(it->first, defaultValue, structure->getTerminalType(it->first));
+                }
             }
         }
     }
@@ -212,6 +216,13 @@ ConfigurationParseResult ConfigurationReader_XML::Parse(const std::string &filen
 
     //loop through each "Module" tag in the XML document under "ModuleConfigurations" tag
     pugi::xml_node moduleConfigurationsNode = doc.child("ModuleConfigurations");
+    if(moduleConfigurationsNode.attribute("MaceInstance").empty() == false)
+    {
+        m_MaceInstance = moduleConfigurationsNode.attribute("MaceInstance").as_int();
+        m_MaceInstanceIDSet = true;
+    }
+
+
     for (pugi::xml_node module = moduleConfigurationsNode.child("Module"); module; module = module.next_sibling("Module"))
     {
         //if module is disabled then skip parsing
@@ -268,6 +279,20 @@ ConfigurationParseResult ConfigurationReader_XML::Parse(const std::string &filen
 
 
     return parseProgress;
+}
+
+
+
+bool ConfigurationReader_XML::HasStaticMaceInstanceID() const
+{
+    return m_MaceInstanceIDSet;
+}
+
+
+
+uint32_t ConfigurationReader_XML::GetStaticMaceInstanceID() const
+{
+    return m_MaceInstance;
 }
 
 

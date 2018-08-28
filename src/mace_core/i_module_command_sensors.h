@@ -7,17 +7,22 @@
 #include "i_module_events_sensors.h"
 #include "i_module_events_vehicle.h"
 
+#include "i_module_command_generic_vehicle_listener.h"
+
 namespace MaceCore
 {
 
 enum class SensorCommands
 {
-    BASE_MODULE_LISTENER_ENUMS
+    BASE_MODULE_LISTENER_ENUMS,
+    GENERIC_MODULE_VEHICLE_LISTENER_ENUMS
 };
 
 class MaceCore;
 
-class MACE_CORESHARED_EXPORT IModuleCommandSensors : public AbstractModule_EventListeners<Metadata_Sensors, IModuleEventsSensors, SensorCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandSensors :
+        public AbstractModule_EventListeners<Metadata_Sensors, IModuleEventsSensors, SensorCommands>,
+        public IModuleGenericVehicleListener
 {
     friend class MaceCore;
     public:
@@ -27,10 +32,8 @@ class MACE_CORESHARED_EXPORT IModuleCommandSensors : public AbstractModule_Event
     IModuleCommandSensors():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(SensorCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
-            UNUSED(sender);
-            NewlyAvailableVehicle(vehicleID);
-        });
+        IModuleGenericVehicleListener::SetUp<Metadata_Sensors, IModuleEventsSensors, SensorCommands>(this);
+
     }
 
     virtual ModuleClasses ModuleClass() const
@@ -39,11 +42,7 @@ class MACE_CORESHARED_EXPORT IModuleCommandSensors : public AbstractModule_Event
     }
 
 public:
-    //!
-    //! \brief NewlyAvailableVehicle New available vehicle subscriber
-    //! \param vehicleID New vehicle ID
-    //!
-    virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
+
 
 
 };

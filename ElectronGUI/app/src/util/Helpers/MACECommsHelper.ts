@@ -1,14 +1,15 @@
 import * as deepcopy from 'deepcopy';
 var net = electronRequire('net');
 import { VehicleDB } from '../Vehicle/VehicleDB';
+import * as GlobalTypes from '../../types/globalTypings';
 
 export class MACECommsHelper {
     tcpServer: any;
     tcpSockets: any[];
-    MACEconfig: ConfigSettingsType;
+    MACEconfig: GlobalTypes.ConfigSettingsType;
     vehicleDB: VehicleDB;
 
-    constructor(MACEconfig: ConfigSettingsType){
+    constructor(MACEconfig: GlobalTypes.ConfigSettingsType){
         this.MACEconfig = MACEconfig;
         this.tcpServer = null;
         this.tcpSockets = [];
@@ -39,7 +40,7 @@ export class MACECommsHelper {
             // 'data' is an event that means that a message was just sent by the client application
             socket.on('data', function (msg_sent: any) {
                 // console.log("Data from socket: " + msg_sent);
-                let jsonData: TCPReturnType = JSON.parse(msg_sent);
+                let jsonData: GlobalTypes.TCPReturnType = JSON.parse(msg_sent);
                 // if(jsonData.dataType === "VehicleMission") {
                 //     console.log("Data from socket: " + msg_sent);
                 //     console.log(jsonData);

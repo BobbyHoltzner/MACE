@@ -25,6 +25,7 @@
 namespace CommsMACE
 {
 
+extern char MACE_INSTANCE_STR[];
 extern char VEHICLE_STR[];
 extern char GROUNDSTATION_STR[];
 extern char RTA_STR[];
@@ -40,9 +41,13 @@ public:
 
     virtual void RequestReset();
 
-    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target = OptionalParameter<std::tuple<const char*, int>>()) const;
+    virtual void WriteBytes(const char *bytes, int length, const OptionalParameter<Resource> &target = OptionalParameter<Resource>()) const;
 
-    virtual void AddResource(const char *resourceType, int ID);
+    virtual void AddResource(const Resource &resource);
+
+    virtual bool HasResource(const Resource &resource) const;
+
+    virtual void RequestRemoteResources() const;
 
 
     //!
@@ -80,7 +85,7 @@ private:
 private:
     DigiMeshConfiguration _config;
 
-    MACEDigiMeshWrapper<VEHICLE_STR, GROUNDSTATION_STR, RTA_STR, EXTERNAL_LINK_STR> *m_Link;
+    MACEDigiMeshWrapper<MACE_INSTANCE_STR, VEHICLE_STR, GROUNDSTATION_STR, RTA_STR, EXTERNAL_LINK_STR> *m_Link;
 };
 
 } //END MAVLINKComms

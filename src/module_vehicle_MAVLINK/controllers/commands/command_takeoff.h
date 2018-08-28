@@ -10,7 +10,7 @@ namespace MAVLINKVehicleControllers {
 class CommandTakeoff : public Controller_GenericLongCommand<CommandItem::SpatialTakeoff, MAV_CMD_NAV_TAKEOFF>
 {
 public:
-    CommandTakeoff(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+    CommandTakeoff(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
         Controller_GenericLongCommand<CommandItem::SpatialTakeoff, MAV_CMD_NAV_TAKEOFF>(cb, queue, linkChan)
     {
 

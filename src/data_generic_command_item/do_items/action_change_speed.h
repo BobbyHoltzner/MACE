@@ -97,7 +97,7 @@ public:
 
     friend std::ostream &operator<<(std::ostream &out, const ActionChangeSpeed &obj)
     {
-        out<<"Command Change Speed( Target ID: "<<obj.targetSystem<<", Generating ID: "<<obj.originatingSystem<<", Frame: "<<Data::SpeedFrameToString(obj.speedFrame)<<", Speed:"<<obj.desiredSpeed<<")";
+        out<<"Command Change Speed( Frame: "<<Data::SpeedFrameToString(obj.speedFrame)<<", Speed:"<<obj.desiredSpeed<<")";
         return out;
     }
 

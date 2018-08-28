@@ -311,6 +311,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
 
 }
 
+
 void GUItoMACE::testFunction1(const int &vehicleID)
 {
 //    mLogs->debug("Module Ground Station saw a request on test function 1.");
@@ -361,6 +362,7 @@ void GUItoMACE::testFunction2(const int &vehicleID)
         ptr->RequestDummyFunction(this, vehicleID);
     });
 }
+
 
 //!
 //! \brief getConnectedVehicles Initiate a request to MACE Core for the list of currently connected vehicles
@@ -581,4 +583,3 @@ bool GUItoMACE::writeTCPData(QByteArray data)
         return false;
     }
 }
-

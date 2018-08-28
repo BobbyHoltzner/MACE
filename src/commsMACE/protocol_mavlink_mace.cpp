@@ -97,7 +97,7 @@ void MavlinkProtocol::SetChannel(ILink *link, uint8_t channel)
 //! \param link Link to put message onto
 //! \param message Message to send
 //!
-void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mace_message_t &message, OptionalParameter<std::tuple<const char*, int>> target)
+void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mace_message_t &message, const OptionalParameter<Resource> &target)
 {
     // Create buffer
     static uint8_t buffer[MACE_MAX_PACKET_LEN];

@@ -14,6 +14,9 @@
 
 #include "mavlink.h"
 
+#include "module_vehicle_MAVLINK/mavlink_entity_key.h"
+
+
 namespace MAVLINKVehicleControllers {
 
 using namespace mace::pose;
@@ -27,7 +30,8 @@ struct TargetControllerStructGlobal
 template <typename T>
 using GuidedTGTGlobalSend = Controllers::ActionSend<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mavlink_set_position_target_global_int_t,
@@ -37,7 +41,8 @@ using GuidedTGTGlobalSend = Controllers::ActionSend<
 template <typename T>
 using GuidedTGTGlobalFinish = Controllers::ActionFinish<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, T>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
     mavlink_position_target_global_int_t,
@@ -45,7 +50,7 @@ using GuidedTGTGlobalFinish = Controllers::ActionFinish<
 >;
 
 template <typename TARGETITEM>
-class ControllerGuidedTargetItem_Global : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, TARGETITEM>,
+class ControllerGuidedTargetItem_Global : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, TARGETITEM>,
         public GuidedTGTGlobalSend<TARGETITEM>,
         public GuidedTGTGlobalFinish<TARGETITEM>
 {
@@ -59,8 +64,7 @@ protected:
     {
         UNUSED(sender);
         UNUSED(target);
-        queueObj.ID = commandItem.targetID;
-        queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        queueObj = commandItem.targetID;
 
         targetItem = initializeMAVLINKTargetItem();
         targetItem.target_system = commandItem.targetID;
@@ -107,8 +111,8 @@ protected:
     }
 
 public:
-    ControllerGuidedTargetItem_Global(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, TARGETITEM>(cb, queue, linkChan),
+    ControllerGuidedTargetItem_Global(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, TARGETITEM>(cb, queue, linkChan),
         GuidedTGTGlobalSend<TARGETITEM>(this, mavlink_msg_set_position_target_global_int_encode_chan),
         GuidedTGTGlobalFinish<TARGETITEM>(this, mavlink_msg_position_target_global_int_decode)
     {

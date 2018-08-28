@@ -22,14 +22,14 @@ public:
 
     }
 
-    void AddListener(const ILinkEvents* ptr)
+    void AddListener(ILinkEvents* ptr)
     {
         m_Listeners.push_back(ptr);
     }
 
-    void EmitEvent(const std::function<void(const ILinkEvents*)> &func) const
+    void EmitEvent(const std::function<void(ILinkEvents*)> &func) const
     {
-        for(const ILinkEvents* listener : m_Listeners)
+        for(ILinkEvents* listener : m_Listeners)
         {
             func(listener);
         }
@@ -56,9 +56,13 @@ public:
 
     virtual void RequestReset() = 0;
 
-    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target = OptionalParameter<std::tuple<const char*, int>>()) const = 0;
+    virtual void WriteBytes(const char *bytes, int length, const OptionalParameter<Resource> &target = OptionalParameter<Resource>()) const = 0;
 
-    virtual void AddResource(const char *resourceType, int ID) = 0;
+    virtual void AddResource(const Resource &resource) = 0;
+
+    virtual bool HasResource(const Resource &resource) const = 0;
+
+    virtual void RequestRemoteResources() const = 0;
 
 
     //!
@@ -84,7 +88,7 @@ private:
 
     std::string m_LinkName;
 
-    std::vector<const ILinkEvents*> m_Listeners;
+    std::vector<ILinkEvents*> m_Listeners;
 };
 
 } //END Comms

@@ -14,6 +14,7 @@
 #include "maps/octomap_wrapper.h"
 
 #include "i_module_command_generic_boundaries.h"
+#include "i_module_command_generic_vehicle_listener.h"
 
 namespace MaceCore
 {
@@ -22,6 +23,7 @@ enum class ROSCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
     GENERIC_MODULE_BOUNDARY_LISTENER_ENUMS,
+    GENERIC_MODULE_VEHICLE_LISTENER_ENUMS,
     NEWLY_UPDATED_3D_OCCUPANCY_MAP,
     NEWLY_COMPRESSED_OCCUPANCY_MAP,
     NEWLY_FOUND_PATH,
@@ -30,7 +32,8 @@ enum class ROSCommands
 
 class MACE_CORESHARED_EXPORT IModuleCommandROS  :
         public AbstractModule_EventListeners<MetadataROS, IModuleEventsROS, ROSCommands>,
-        public IModuleGenericBoundaries
+        public IModuleGenericBoundaries,
+        public IModuleGenericVehicleListener
 {
     friend class MaceCore;
 public:
@@ -41,12 +44,9 @@ public:
         AbstractModule_EventListeners()
     {
         IModuleGenericBoundaries::SetUp<MetadataROS, IModuleEventsROS, ROSCommands>(this);
+        IModuleGenericVehicleListener::SetUp<MetadataROS, IModuleEventsROS, ROSCommands>(this);
 
 
-        AddCommandLogic<int>(ROSCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
-            UNUSED(sender);
-            NewlyAvailableVehicle(vehicleID);
-        });
         AddCommandLogic<mace::maps::Data2DGrid<mace::maps::OccupiedResult>>(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, [this](const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyCompressedOccupancyMap(map);
@@ -68,11 +68,7 @@ public:
     }
 
 public:
-    //!
-    //! \brief NewlyAvailableVehicle New available vehicle subscriber
-    //! \param vehicleID New vehicle ID
-    //!
-    virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
+
 
     //!
     //! \brief NewlyUpdated3DOccupancyMap New 3D occupancy map subscriber

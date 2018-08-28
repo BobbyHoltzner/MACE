@@ -34,8 +34,7 @@ namespace ExternalLink {
     bool ControllerSystemMode::Construct_FinalObjectAndResponse(const mace_command_system_mode_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_system_mode_ack_t &ack, std::shared_ptr<CommandItem::ActionChangeMode> &data, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        vehicleObj.ID = msg.target_system;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        vehicleObj = this->GetModuleFromMAVLINKVehicleID(msg.target_system);
 
         queueObj = vehicleObj;
 
@@ -56,8 +55,8 @@ namespace ExternalLink {
         return true;
     }
 
-    ControllerSystemMode::ControllerSystemMode(const Controllers::IMessageNotifier<mace_message_t>* cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> * queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<mace_message_t, CommandItem::ActionChangeMode>(cb, queue, linkChan),
+    ControllerSystemMode::ControllerSystemMode(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> * queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::ActionChangeMode>(cb, queue, linkChan),
         SystemModeSend(this, mace_msg_command_system_mode_encode_chan),
         SystemMode_FinalReceiveRespond(this, mace_msg_command_system_mode_decode, mace_msg_system_mode_ack_encode_chan),
         SystemModeFinish(this, mace_msg_system_mode_ack_decode)

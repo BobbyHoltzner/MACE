@@ -15,7 +15,7 @@ typedef void(*CallbackFunctionPtr_VehicleTarget)(void*, MissionTopic::VehicleTar
 class ArdupilotVehicleObject : public MavlinkVehicleObject
 {
 public:
-    ArdupilotVehicleObject(CommsMAVLINK* commsObj, const int &ID, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue);
+    ArdupilotVehicleObject(CommsMAVLINK* commsObj, const MaceCore::ModuleCharacteristic &module, const int &mavlinkID);
 
     CallbackInterface_MAVLINKVehicleObject* getMAVLINKCallback()
     {

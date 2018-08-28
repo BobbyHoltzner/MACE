@@ -16,6 +16,7 @@ namespace Controllers {
  * Example Usage:
  *      using SendHelper_RequestItem = ActionIntermediate<
  *          mace_messate_t,                         //Fundemental packet that data is sent out on
+ *
  *          CONTROLLER_MISSION_TYPE,                //Controller type
  *          MissionItem::MissionKey,                //Queue that followup message will belong to. Used to add followup transmission to queue
  *          mace_mission_request_item_t,            //Message type to receive
@@ -26,10 +27,10 @@ namespace Controllers {
  *      >;
  *
  */
-template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename RESPOND_QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID, typename ACK_TYPE, const int ...MESSAGE_ACK_ID>
+template<typename MESSAGE_TYPE, typename COMPONENT_KEY, typename CONTROLLER_TYPE, typename RESPOND_QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID, typename ACK_TYPE, const int ...MESSAGE_ACK_ID>
 class ActionIntermediateUnsolicited :
-        public ActionIntermediateUnsolicitedReceive<MESSAGE_TYPE, CONTROLLER_TYPE, RESPOND_QUEUE_TYPE, MSG_TYPE, MESSAGE_REQUEST_ID, ACK_TYPE>,
-        public ActionIntermediateRespond<MESSAGE_TYPE, CONTROLLER_TYPE, ACK_TYPE, MESSAGE_ACK_ID...>
+        public ActionIntermediateUnsolicitedReceive<MESSAGE_TYPE, COMPONENT_KEY, CONTROLLER_TYPE, RESPOND_QUEUE_TYPE, MSG_TYPE, MESSAGE_REQUEST_ID, ACK_TYPE>,
+        public ActionIntermediateRespond<MESSAGE_TYPE, COMPONENT_KEY, CONTROLLER_TYPE, ACK_TYPE, MESSAGE_ACK_ID...>
 {
 
 public:
@@ -37,10 +38,10 @@ public:
     ActionIntermediateUnsolicited(CONTROLLER_TYPE *controller,
                                     const std::function<void(const MESSAGE_TYPE*, MSG_TYPE*)> &decode,
                                     const std::function<void(uint8_t system_id, uint8_t, uint8_t, MESSAGE_TYPE*, const ACK_TYPE*)> &encode_ack_chan) :
-        ActionIntermediateUnsolicitedReceive<MESSAGE_TYPE, CONTROLLER_TYPE, RESPOND_QUEUE_TYPE, MSG_TYPE, MESSAGE_REQUEST_ID, ACK_TYPE>(controller,
-                                  [this](const ACK_TYPE &A, const MaceCore::ModuleCharacteristic &B, const RESPOND_QUEUE_TYPE &C, const MaceCore::ModuleCharacteristic &D){ActionIntermediateRespond<MESSAGE_TYPE, CONTROLLER_TYPE, ACK_TYPE, MESSAGE_ACK_ID...>::NextTransmission(A,B,C,D);},
+        ActionIntermediateUnsolicitedReceive<MESSAGE_TYPE, COMPONENT_KEY, CONTROLLER_TYPE, RESPOND_QUEUE_TYPE, MSG_TYPE, MESSAGE_REQUEST_ID, ACK_TYPE>(controller,
+                                  [this](const ACK_TYPE &A, const COMPONENT_KEY &B, const RESPOND_QUEUE_TYPE &C, const COMPONENT_KEY &D){ActionIntermediateRespond<MESSAGE_TYPE, COMPONENT_KEY, CONTROLLER_TYPE, ACK_TYPE, MESSAGE_ACK_ID...>::NextTransmission(A,B,C,D);},
                                   decode),
-        ActionIntermediateRespond<MESSAGE_TYPE, CONTROLLER_TYPE, ACK_TYPE, MESSAGE_ACK_ID...>(controller, encode_ack_chan)
+        ActionIntermediateRespond<MESSAGE_TYPE, COMPONENT_KEY, CONTROLLER_TYPE, ACK_TYPE, MESSAGE_ACK_ID...>(controller, encode_ack_chan)
     {
     }
 };

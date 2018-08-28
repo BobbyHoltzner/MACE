@@ -39,13 +39,14 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
 
     std::shared_ptr<MaceCore::ModuleParameterStructure> moduleSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     moduleSettings->AddTerminalParameters("GlobalInstance", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
+    moduleSettings->AddTerminalParameters("SpecalizationID", MaceCore::ModuleParameterTerminalTypes::INT, false);
     structure.AddNonTerminal("ModuleParameters", moduleSettings, true);
 
     std::shared_ptr<MaceCore::ModuleParameterStructure> environmentParams = std::make_shared<MaceCore::ModuleParameterStructure>();
     environmentParams->AddTerminalParameters("GridSpacing", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
     structure.AddNonTerminal("EnvironmentParameters", environmentParams, true);
 
-    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
+    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, false);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -57,13 +58,32 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
 //!
 void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
+    MaceCore::Metadata_RTA meta;
 
-    this->SetID(params->GetTerminalValue<int>("ID"));
+    if(params->HasTerminal("ID"))
+    {
+        this->SetID(params->GetTerminalValue<int>("ID"));
+    }
 
     if(params->HasNonTerminal("ModuleParameters"))
     {
         std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
         m_globalInstance = moduleSettings->GetTerminalValue<bool>("GlobalInstance");
+
+        if(m_globalInstance == true)
+        {
+            meta.SetGlobal();
+        }
+        else
+        {
+            if(moduleSettings->HasTerminal("SpecalizationID") == false)
+            {
+                throw std::runtime_error ("RTA module has been marked as not-global, yet no SpecalizationID parameter given");
+            }
+            int specalizationID = moduleSettings->GetTerminalValue<int>("SpecalizationID");
+            meta.SetSpecalization(specalizationID);
+        }
+
     }
 
     if(params->HasNonTerminal("EnvironmentParameters")) {
@@ -79,6 +99,7 @@ void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
         throw std::runtime_error("Unkown RTA parameters encountered");
     }
 
+    this->setModuleMetaData(meta);
 }
 
 
@@ -119,10 +140,15 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
 
 
     //example read of vehicle data
-    int senderID = sender.ID;
     if(topicName == m_VehicleDataTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        if(this->getDataObject()->HasModuleAsMavlinkID(sender) == false)
+        {
+            return;
+        }
+        int senderID = this->getDataObject()->getMavlinkIDFromModule(sender);
+
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
 
             if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name())
@@ -233,13 +259,41 @@ void ModuleRTA::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &
 //!
 void ModuleRTA::NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    BoundaryItem::BoundaryCharacterisic characterstic;
     BoundaryItem::BoundaryList boundary;
     this->getDataObject()->getBoundaryFromIdentifier(key, boundary);
+    this->getDataObject()->getCharactersticFromIdentifier(key, characterstic);
 
-    updateEnvironment(boundary);
+    /// If its not global and is a resource fence
+    ///   Check if we care about module and do further processing
+    if(this->getModuleMetaData().IsGlobal() == false && characterstic.Type() == BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE)
+    {
+        // Determine the module which this RTA module is a specalization of
+        MaceCore::ModuleCharacteristic specalizedModule;
+        specalizedModule.MaceInstance = this->getParentMaceInstanceID();
+        specalizedModule.ModuleID = this->getModuleMetaData().SpecalizationOf();
 
-    if(m_globalInstance) {
-        // If global, loop over all vehicles and send their ResourceFence
+        // Determine the vehicleID this RTA module is a specalization of
+        int vehicleID = this->getDataObject()->getMavlinkIDFromModule(specalizedModule);
+
+        // Determine the module that the given boundary is assositated with
+        if(characterstic.ContainsVehicle(vehicleID) == false) return;
+
+        printf("RTA Module for Vehicle %d received a new Rsource Fence\n", vehicleID);
+
+        // /////////////////////////////
+        // PROCESS BOUNDARY
+        // /////////////////////////////
+    }
+
+
+    /// If this module is a global instance and the boundary is an operational fence:
+    ///   Then partition out and give new resource boundaries to Core.
+    if(this->getModuleMetaData().IsGlobal() == true && characterstic.Type() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE) {
+
+        //MTB - According to Pat, this method only makes sense to call on global RTA module that is partioning a OP-fence to resource-fence
+        updateEnvironment(boundary);
+
         for(auto vehicleCell : m_vehicleCells) {
             int vehicleID = vehicleCell.first;
             BoundaryItem::BoundaryList resourceFence;
@@ -265,7 +319,7 @@ void ModuleRTA::NewlyAvailableBoundary(const uint8_t &key, const OptionalParamet
 //! \brief NewlyAvailableVehicle Subscriber for a new vehicle topic
 //! \param vehicleID Vehicle ID of the new vehicle
 //!
-void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
+void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     /* MTB - Removing 7/2/2018
      * @pnolan Issue: 137

@@ -15,7 +15,7 @@
 
 #include "module_characteristics.h"
 
-#define BASE_MODULE_LISTENER_ENUMS NEWLY_AVAILABLE_VEHICLE, NEWLY_UPDATED_GLOBAL_ORIGIN
+#define BASE_MODULE_LISTENER_ENUMS NEWLY_UPDATED_GLOBAL_ORIGIN
 
 namespace MaceCore
 {
@@ -80,6 +80,12 @@ public:
 
 public:
 
+    ModuleBase() :
+        m_HasID(false),
+        m_Started(false)
+    {
+
+    }
 
     const static ModuleClasses moduleClass;
 
@@ -88,6 +94,18 @@ public:
     void SetID(int ID)
     {
         m_ID = ID;
+        m_HasID = true;
+    }
+
+    //!
+    //! \brief Determine if ID has ben set.
+    //!
+    //! Used at startup when some modules may have a "static" ID while others will be dynamically assinged
+    //! \return True if module has an ID assigned to it.
+    //!
+    bool HasID() const
+    {
+        return m_HasID;
     }
 
     int GetID() const
@@ -98,8 +116,9 @@ public:
     ModuleCharacteristic GetCharacteristic() const
     {
         ModuleCharacteristic obj;
-        obj.ID = m_ID;
-        obj.Class = ModuleClass();
+        obj.ModuleID = m_ID;
+        //obj.Class = ModuleClass();
+        obj.MaceInstance = this->getParentMaceInstanceID();
         return obj;
     }
 
@@ -134,7 +153,7 @@ public:
     //!
     virtual void OnModulesStarted()
     {
-
+        m_Started = true;
     }
 
     //!
@@ -198,6 +217,45 @@ public:
         return m_Data;
     }
 
+
+    //!
+    //! \brief Set the host MACE instance ID
+    //! \param ID identifier for host MACE instance
+    //!
+    void setPararentMaceInstanceID(const uint32_t &ID)
+    {
+        m_ParentMaceInstanceIDSet = true;
+        m_ParentMaceInstanceID = ID;
+    }
+
+
+    //!
+    //! \brief Get the host MACE instance ID
+    //! \throws std::runtime_error Thrown if no ID has been set.
+    //! \return Identifier for host MACE instance
+    //!
+    uint32_t getParentMaceInstanceID() const
+    {
+        if(m_ParentMaceInstanceIDSet == false)
+        {
+            throw std::runtime_error("No Parent ID Set");
+        }
+        return m_ParentMaceInstanceID;
+    }
+
+protected:
+
+
+    //!
+    //! \brief ModuleStarted Determine if the MACE has indicated that the module is capable of running
+    //! \return True if MACE instance has indicated the module is good to go
+    //!
+    bool ModuleStarted() const
+    {
+        return m_Started;
+    }
+
+
 protected:
     std::string loggingPath;
     bool loggerCreated = false;
@@ -205,7 +263,18 @@ protected:
 private:
     std::shared_ptr<const MaceData> m_Data;
 
+    bool m_HasID;
     int m_ID;
+
+    ///MTB MODULE AUTO ASSIGN
+    bool m_ParentMaceInstanceIDSet = false;
+    uint32_t m_ParentMaceInstanceID;
+    ///
+
+    //!
+    //! \brief Variable to indicate if the MACE instance is ready for this module to start it's processing
+    //!
+    bool m_Started;
 };
 
 

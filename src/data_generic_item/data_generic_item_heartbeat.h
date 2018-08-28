@@ -45,6 +45,11 @@ public:
         this->maceCompanion = companion;
     }
 
+    void setMavlinkID(const uint8_t &ID)
+    {
+        this->mavlinkID = ID;
+    }
+
 public:
     Data::CommsProtocol getProtocol() const
     {
@@ -67,6 +72,11 @@ public:
         return this->maceCompanion;
     }
 
+    uint8_t getMavlinkID() const
+    {
+        return this->mavlinkID;
+    }
+
     mace_heartbeat_t getMACECommsObject() const;
     mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
 
@@ -78,6 +88,7 @@ public:
         this->autopilot = rhs.autopilot;
         this->missionState = rhs.missionState;
         this->maceCompanion = rhs.maceCompanion;
+        this->mavlinkID = rhs.mavlinkID;
     }
 
     bool operator == (const DataGenericItem_Heartbeat &rhs) {
@@ -96,6 +107,9 @@ public:
         if(this->maceCompanion != rhs.maceCompanion){
             return false;
         }
+        if(this->mavlinkID != rhs.mavlinkID) {
+            return false;
+        }
         return true;
     }
 
@@ -110,6 +124,7 @@ protected:
     Data::SystemType type;
     Data::MissionExecutionState missionState;
     bool maceCompanion;
+    uint8_t mavlinkID;
 };
 
 } //end of namespace DataGenericItem

@@ -12,7 +12,7 @@ class CommandRTL : public Controller_GenericShortCommand<CommandItem::SpatialRTL
 {
 public:
 
-    CommandRTL(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
+    CommandRTL(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
 
 protected:
 

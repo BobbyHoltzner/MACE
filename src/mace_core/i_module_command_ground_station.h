@@ -13,6 +13,7 @@
 
 
 #include "i_module_command_generic_boundaries.h"
+#include "i_module_command_generic_vehicle_listener.h"
 
 namespace MaceCore
 {
@@ -21,6 +22,7 @@ enum class GroundStationCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
     GENERIC_MODULE_BOUNDARY_LISTENER_ENUMS,
+    GENERIC_MODULE_VEHICLE_LISTENER_ENUMS,
     NEWLY_AVAILABLE_CURRENT_MISSION,
     NEW_MISSION_EXE_STATE,
     NEWLY_AVAILABLE_HOME_POSITION
@@ -28,7 +30,8 @@ enum class GroundStationCommands
 
 class MACE_CORESHARED_EXPORT IModuleCommandGroundStation :
         public AbstractModule_EventListeners<Metadata_GroundStation, IModuleEventsGroundStation, GroundStationCommands>,
-        public IModuleGenericBoundaries
+        public IModuleGenericBoundaries,
+        public IModuleGenericVehicleListener
 {
     friend class MaceCore;
 public:
@@ -39,11 +42,7 @@ public:
         AbstractModule_EventListeners()
     {
         IModuleGenericBoundaries::SetUp<Metadata_GroundStation, IModuleEventsGroundStation, GroundStationCommands>(this);
-
-        AddCommandLogic<int>(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
-            UNUSED(sender);
-            NewlyAvailableVehicle(vehicleID);
-        });
+        IModuleGenericVehicleListener::SetUp<Metadata_GroundStation, IModuleEventsGroundStation, GroundStationCommands>(this);
 
         AddCommandLogic<MissionItem::MissionKey>(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION, [this](const MissionItem::MissionKey &missionKey, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
@@ -71,17 +70,6 @@ public:
     }
 
 public:
-    //!
-    //! \brief NewlyAvailableVehicle New available vehicle subscriber
-    //! \param vehicleID New vehicle ID
-    //!
-    virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
-
-    //!
-    //! \brief NewlyAvailableBoundary New boundary available subscriber
-    //! \param key
-    //!
-    virtual void NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     //!
     //! \brief NewlyAvailableCurrentMission New current mission available
